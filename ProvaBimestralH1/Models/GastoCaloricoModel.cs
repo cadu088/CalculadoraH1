@@ -26,6 +26,19 @@
 
     }
 
+    public class GastoCaloricoAtividadelEntrada
+    {
+        public GastoCaloricoAtividadelEntrada(int minutosExercicio, string exercicio)
+        {
+            MinutosExercicio = minutosExercicio;
+            Exercicio = exercicio;
+        }
+
+        public int MinutosExercicio { get; set; }
+        public string Exercicio { get; set; }
+
+    }
+
     public class GastoCaloricoAtividadelSaida
     {
         public GastoCaloricoAtividadelSaida(double caloriasDiarias)

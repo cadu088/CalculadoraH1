@@ -14,16 +14,19 @@ namespace ProvaBimestralH1.Controllers
             _logger = logger;
         }
 
-        [HttpPost(Name = "GastoCaloricoBasal")]
+        [Route("GastoCaloricoBasal")]
+        [HttpPost]
         public IActionResult GastoCaloricoBasal(GastoCaloricoModelEntrada data)
         {
             try
             {
                 double resultado = 0;
                 // Validações
+
                 if (data.Sexo != "M" && data.Sexo != "F")
                 {
                     return BadRequest(new { success = false, mensagem = "Entre com um sexo valido!" });
+                    
                 }
 
                 if (data.Quilo < 0)
@@ -60,16 +63,13 @@ namespace ProvaBimestralH1.Controllers
                     {
                         resultado = (0.034 * data.Quilo + 3.538) * 239;
                     }
-
                 }
                 else
                 {
                     return BadRequest(new { success = false, mensagem = "Entre com uma idade entre 18 a 40 anos!" });
                 }
 
-                GastoCaloricoModelSaida saida = new GastoCaloricoModelSaida(resultado);
-
-                return Ok(saida);
+                return Ok(new GastoCaloricoModelSaida(Convert.ToInt32(resultado)));
             }
             catch (Exception ex)
             {
@@ -77,11 +77,66 @@ namespace ProvaBimestralH1.Controllers
             }
         }
 
-        [HttpPost(Name = "GastoCaloricoAtividade")]
-
-        public IActionResult GastoCaloricoAtividade()
+        [Route("GastoCaloricoAtividade")]
+        [HttpPost]
+        public IActionResult GastoCaloricoAtividade(GastoCaloricoAtividadelEntrada data)
         {
+            try
+            {
 
+                string[] exerciciosValidos = new string[]
+                {
+                    "Caminhada (piso plano)",
+                    "Trabalho doméstico",
+                    "Corrida (5 min/Km)",
+                    "Bicicleta (9 km/h)",
+                    "Bicicleta (15 Km/h)",
+                    "Alongamento"
+                };
+
+                if (data.MinutosExercicio < 0)
+                {
+                   return BadRequest(new { success = false, mensagem = "Entre com minutos validos!" });
+                }
+                //.Contains(data.Exercicio)
+                if (exerciciosValidos.Where(x => (x == data.Exercicio)).Count() <= 0)
+                {
+                   return BadRequest(new { success = false, mensagem = "atividade não existe, calculo não pode ser realizado" });
+                }
+
+                double resultado = 0;
+
+                switch (data.Exercicio)
+                {
+                    case "Caminhada (piso plano)":
+                        resultado = 6.1 * data.MinutosExercicio;
+                        break;
+                    case "Trabalho doméstico":
+                        resultado = 4.6 * data.MinutosExercicio;
+                        break;
+                    case "Corrida (5 min/Km)":
+                        resultado = 16 * data.MinutosExercicio;
+                        break;
+                    case "Bicicleta (9 km/h)":
+                        resultado = 4.9 * data.MinutosExercicio;
+                        break;
+                    case "Bicicleta (15 Km/h)":
+                        resultado = 7.7 * data.MinutosExercicio;
+                        break;
+                    case "Alongamento":
+                        resultado = 5.4 * data.MinutosExercicio;
+                        break;
+                    //default:
+                    //    return BadRequest(new { success = false, mensagem = "atividade não existe, calculo não pode ser realizado" });
+                    //    break;
+                }
+                    
+                return Ok(new GastoCaloricoAtividadelSaida(Convert.ToInt32(resultado)));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, mensagem = ex.Message });
+            }
         }
     } 
 }
